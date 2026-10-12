@@ -1,89 +1,84 @@
 {
   "users": [
     {
-      "uid": "ops-1",
-      "email": "ops1@nex.test",
-      "role": "ops"
-    },
-    {
-      "uid": "ops-2",
-      "email": "ops2@nex.test",
-      "role": "ops"
-    },
-    {
       "uid": "creator-a",
-      "email": "creator.a@nex.test",
+      "email": "a@example.com",
       "role": "creator"
     },
     {
       "uid": "creator-b",
-      "email": "creator.b@nex.test",
+      "email": "b@example.com",
       "role": "creator"
+    },
+    {
+      "uid": "ops-1",
+      "email": "ops@example.com",
+      "role": "ops"
     }
   ],
   "campaigns": [
     {
-      "id": "c1",
-      "title": "Songkran Water Festival 2026",
+      "id": "camp-bkk",
+      "title": "Bangkok Riverside Hotel",
       "status": "open",
-      "ratePerVideoTHB": 1500
+      "ratePerVideoTHB": 500
     },
     {
-      "id": "c2",
-      "title": "Phuket Sunset Vibes",
-      "status": "closed",
+      "id": "camp-pkt",
+      "title": "Phuket Beach Resort",
+      "status": "open",
       "ratePerVideoTHB": 800
     }
   ],
   "submissions": [
     {
       "id": "s1",
-      "campaignId": "c1",
+      "campaignId": "camp-bkk",
       "creatorId": "creator-a",
-      "tiktokUrl": "https://www.tiktok.com/@somchai/video/7123456789012345678",
+      "tiktokUrl": "https://www.tiktok.com/@a/video/7300000000000000001",
       "status": "pending",
-      "createdAt": "2026-09-10T10:00:00Z"
+      "createdAt": "2026-09-10T08:00:00Z"
     },
     {
       "id": "s2",
-      "campaignId": "c1",
+      "campaignId": "camp-bkk",
       "creatorId": "creator-b",
-      "tiktokUrl": "https://www.tiktok.com/@linh/video/7234567890123456789",
+      "tiktokUrl": "https://www.tiktok.com/@b/video/7300000000000000002",
       "status": "pending",
-      "createdAt": "2026-09-12T14:30:00Z"
+      "createdAt": "2026-09-12T10:30:00Z"
     },
     {
       "id": "s3",
-      "campaignId": "c2",
+      "campaignId": "camp-pkt",
       "creatorId": "creator-a",
       "tiktokUrl": "https://vm.tiktok.com/ZSabc123/",
       "status": "approved",
-      "createdAt": "2026-09-15T08:00:00Z"
+      "createdAt": "2026-09-15T04:00:00Z"
     },
     {
       "id": "s4",
-      "campaignId": "c2",
+      "campaignId": "camp-pkt",
       "creatorId": "creator-b",
-      "tiktokUrl": "https://www.tiktok.com/@creatorb/video/7345678901234567890",
+      "tiktokUrl": "https://www.tiktok.com/@b/video/7300000000000000004",
       "status": "approved",
       "createdAt": "2026-09-30T18:30:00Z"
     },
     {
       "id": "s5",
-      "campaignId": "c1",
+      "campaignId": "camp-bkk",
       "creatorId": "creator-a",
-      "tiktokUrl": "https://www.tiktok.com/@somchai/video/7456789012345678901",
+      "tiktokUrl": "https://www.tiktok.com/@a/video/7300000000000000005",
       "status": "rejected",
-      "reason": "Video quality too low / watermark detected",
-      "createdAt": "2026-09-20T11:15:00Z"
+      "reason": "Hotel not visible",
+      "createdAt": "2026-09-20T09:00:00Z"
     },
     {
       "id": "s6",
-      "campaignId": "c2",
-      "creatorId": "creator-b",
-      "tiktokUrl": "https://www.tiktok.com/@creatorb/video/7567890123456789012",
+      "campaignId": "camp-pkt",
+      "creatorId": "creator-a",
+      "tiktokUrl": "https://www.tiktok.com/@a/video/7300000000000000006",
       "status": "paid",
-      "createdAt": "2026-08-25T09:00:00Z"
+      "createdAt": "2026-08-28T09:00:00Z"
     }
   ]
 }
