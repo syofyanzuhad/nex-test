@@ -20,7 +20,6 @@ import { validateTiktokUrl } from "./lib/validation";
 import { mapFirebaseError } from "./lib/errorMapping";
 import { generatePayoutCsv, type PayoutSubmission } from "./lib/payoutCsv";
 import { I18nProvider, useI18n } from "./i18n/I18nContext";
-import "./App.css";
 
 interface Campaign {
   id: string;
@@ -76,91 +75,126 @@ export function AppContent() {
   };
 
   if (loadingAuth) {
-    return <div className="container"><p>{t("app.loading")}</p></div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+          <p className="text-sm font-medium text-slate-500">{t("app.loading")}</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container">
-      <header className="header">
-        <div>
-          <h1 style={{ margin: 0, fontSize: "1.5rem" }}>{t("app.title")}</h1>
-          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.85rem" }}>
-            {t("app.subtitle")}
-          </p>
-        </div>
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-          {/* Language Toggle (R5.1) */}
-          <div style={{ display: "flex", background: "#e2e8f0", borderRadius: "6px", padding: "2px" }}>
-            <button
-              className="btn"
-              style={{
-                padding: "0.25rem 0.6rem",
-                fontSize: "0.8rem",
-                background: lang === "en" ? "var(--primary)" : "transparent",
-                color: lang === "en" ? "#fff" : "#334155",
-              }}
-              onClick={() => setLang("en")}
-            >
-              EN
-            </button>
-            <button
-              className="btn"
-              style={{
-                padding: "0.25rem 0.6rem",
-                fontSize: "0.8rem",
-                background: lang === "th" ? "var(--primary)" : "transparent",
-                color: lang === "th" ? "#fff" : "#334155",
-              }}
-              onClick={() => setLang("th")}
-            >
-              TH
-            </button>
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-12">
+      {/* Top Navbar */}
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-linear-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-sm">
+              <span className="text-white font-bold text-lg leading-none">N</span>
+            </div>
+            <div>
+              <h1 className="text-base font-bold text-slate-900 tracking-tight leading-tight">
+                {t("app.title")}
+              </h1>
+              <p className="text-xs text-slate-500 hidden sm:block">
+                {t("app.subtitle")}
+              </p>
+            </div>
           </div>
 
-          {currentUser && (
-            <>
-              <span>
-                <strong>{currentUser.email}</strong> ({isOps ? t("auth.roleOps") : t("auth.roleCreator")})
-              </span>
-              <button className="btn btn-secondary" onClick={handleLogout}>
-                {t("app.signOut")}
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Language Switcher */}
+            <div className="inline-flex p-0.5 bg-slate-100 rounded-lg border border-slate-200">
+              <button
+                type="button"
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                  lang === "en"
+                    ? "bg-white text-indigo-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                onClick={() => setLang("en")}
+              >
+                EN
               </button>
-            </>
-          )}
-        </div>
-      </header>
+              <button
+                type="button"
+                className={`px-2.5 py-1 text-xs font-semibold rounded-md transition-all ${
+                  lang === "th"
+                    ? "bg-white text-indigo-700 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+                onClick={() => setLang("th")}
+              >
+                TH
+              </button>
+            </div>
 
-      {globalError && (
-        <div className="alert-error" role="alert">
-          {globalError}
+            {currentUser && (
+              <div className="flex items-center gap-3 pl-3 border-l border-slate-200">
+                <div className="text-right hidden sm:block">
+                  <div className="text-xs font-semibold text-slate-800">{currentUser.email}</div>
+                  <div className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold tracking-wide uppercase bg-indigo-50 text-indigo-700 border border-indigo-100">
+                    {isOps ? t("auth.roleOps") : t("auth.roleCreator")}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="px-3 py-1.5 text-xs font-medium text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg shadow-xs transition-colors cursor-pointer"
+                  onClick={handleLogout}
+                >
+                  {t("app.signOut")}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
-      )}
-      {globalSuccess && (
-        <div className="alert-success" role="status">
-          {globalSuccess}
-        </div>
-      )}
+      </nav>
 
-      {!currentUser ? (
-        <LoginScreen onLogin={handleLogin} />
-      ) : isOps ? (
-        <OpsScreen
-          onError={(msg) => setGlobalError(msg)}
-          onSuccess={(msg) => {
-            setGlobalSuccess(msg);
-            setTimeout(() => setGlobalSuccess(null), 3000);
-          }}
-        />
-      ) : (
-        <CreatorScreen
-          user={currentUser}
-          onError={(msg) => setGlobalError(msg)}
-          onSuccess={(msg) => {
-            setGlobalSuccess(msg);
-            setTimeout(() => setGlobalSuccess(null), 3000);
-          }}
-        />
-      )}
+      {/* Main Content Area */}
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Global Notifications */}
+        {globalError && (
+          <div
+            className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-800 text-sm flex items-start gap-3 shadow-xs"
+            role="alert"
+          >
+            <span className="text-red-500 font-bold">✕</span>
+            <div className="flex-1 font-medium">{globalError}</div>
+          </div>
+        )}
+        {globalSuccess && (
+          <div
+            className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm flex items-start gap-3 shadow-xs"
+            role="status"
+          >
+            <span className="text-emerald-500 font-bold">✓</span>
+            <div className="flex-1 font-medium">{globalSuccess}</div>
+          </div>
+        )}
+
+        {!currentUser ? (
+          <LoginScreen onLogin={handleLogin} />
+        ) : isOps ? (
+          <OpsScreen
+            onError={(msg) => setGlobalError(msg)}
+            onSuccess={(msg) => {
+              setGlobalSuccess(msg);
+              setTimeout(() => setGlobalSuccess(null), 3000);
+            }}
+          />
+        ) : (
+          <CreatorScreen
+            user={currentUser}
+            onError={(msg) => setGlobalError(msg)}
+            onSuccess={(msg) => {
+              setGlobalSuccess(msg);
+              setTimeout(() => setGlobalSuccess(null), 3000);
+            }}
+          />
+        )}
+      </main>
     </div>
   );
 }
@@ -175,22 +209,37 @@ export function App() {
 
 function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
   const { t } = useI18n();
+
+  const accounts = [
+    { email: "ops@nex.test", label: t("auth.loginOps"), role: "Operations Staff", color: "border-indigo-500 hover:bg-indigo-50/50" },
+    { email: "creator1@nex.test", label: t("auth.loginCreatorA"), role: "Creator Account 1", color: "border-emerald-500 hover:bg-emerald-50/50" },
+    { email: "creator2@nex.test", label: t("auth.loginCreatorB"), role: "Creator Account 2", color: "border-sky-500 hover:bg-sky-50/50" },
+  ];
+
   return (
-    <div className="card">
-      <h2>{t("auth.title")}</h2>
-      <p style={{ color: "var(--text-muted)" }}>
-        {t("auth.subtitle")}
-      </p>
-      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: "320px", marginTop: "1rem" }}>
-        <button className="btn" onClick={() => onLogin("ops@example.com")}>
-          {t("auth.loginOps")}
-        </button>
-        <button className="btn btn-secondary" onClick={() => onLogin("a@example.com")}>
-          {t("auth.loginCreatorA")}
-        </button>
-        <button className="btn btn-secondary" onClick={() => onLogin("b@example.com")}>
-          {t("auth.loginCreatorB")}
-        </button>
+    <div className="max-w-md mx-auto mt-8 bg-white p-8 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="text-center mb-6">
+        <h2 className="text-xl font-bold text-slate-900 tracking-tight">{t("auth.title")}</h2>
+        <p className="text-sm text-slate-500 mt-1">{t("auth.subtitle")}</p>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {accounts.map((acc) => (
+          <button
+            key={acc.email}
+            type="button"
+            className={`w-full p-4 text-left border rounded-xl transition-all flex items-center justify-between group cursor-pointer ${acc.color}`}
+            onClick={() => onLogin(acc.email)}
+          >
+            <div>
+              <div className="font-semibold text-slate-900 text-sm">{acc.label}</div>
+              <div className="text-xs text-slate-500 font-mono mt-0.5">{acc.email}</div>
+            </div>
+            <span className="text-xs font-semibold px-2 py-1 rounded bg-slate-100 text-slate-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+              Login →
+            </span>
+          </button>
+        ))}
       </div>
     </div>
   );
@@ -280,14 +329,19 @@ function CreatorScreen({
   };
 
   return (
-    <div>
-      <div className="card">
-        <h2>{t("creator.submitTitle")}</h2>
-        <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: "1rem" }}>
-            <label>{t("creator.campaignLabel")}</label>
+    <div className="space-y-8">
+      {/* Submission Form Card */}
+      <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200 shadow-xs">
+        <h2 className="text-lg font-bold text-slate-900 tracking-tight mb-4">
+          {t("creator.submitTitle")}
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4 max-w-2xl">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              {t("creator.campaignLabel")}
+            </label>
             <select
-              className="select"
+              className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-300 rounded-xl shadow-2xs focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-hidden transition-all disabled:opacity-50"
               value={selectedCampaign}
               onChange={(e) => setSelectedCampaign(e.target.value)}
               disabled={submitting}
@@ -300,11 +354,17 @@ function CreatorScreen({
             </select>
           </div>
 
-          <div style={{ marginBottom: "1rem" }}>
-            <label>{t("creator.tiktokUrlLabel")}</label>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+              {t("creator.tiktokUrlLabel")}
+            </label>
             <input
               type="text"
-              className="input"
+              className={`w-full px-3.5 py-2.5 text-sm bg-white border rounded-xl shadow-2xs outline-hidden transition-all ${
+                urlValidationError
+                  ? "border-red-400 focus:ring-2 focus:ring-red-400"
+                  : "border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              } disabled:opacity-50`}
               placeholder={t("creator.tiktokUrlPlaceholder")}
               value={tiktokUrl}
               onChange={(e) => {
@@ -314,55 +374,79 @@ function CreatorScreen({
               disabled={submitting}
             />
             {urlValidationError && (
-              <span style={{ color: "var(--danger)", fontSize: "0.85rem", marginTop: "0.25rem", display: "block" }}>
+              <p className="mt-1.5 text-xs text-red-600 font-medium">
                 {urlValidationError}
-              </span>
+              </p>
             )}
           </div>
 
-          <button type="submit" className="btn" disabled={submitting}>
+          <button
+            type="submit"
+            className="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 rounded-xl shadow-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={submitting}
+          >
             {submitting ? t("creator.submittingButton") : t("creator.submitButton")}
           </button>
         </form>
       </div>
 
-      <div className="card">
-        <h2>{t("creator.mySubmissionsTitle")}</h2>
+      {/* Creator Submissions Table Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+            {t("creator.mySubmissionsTitle")}
+          </h2>
+          <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+            Total: {submissions.length}
+          </span>
+        </div>
+
         {loading ? (
-          <p>{t("creator.loadingSubmissions")}</p>
+          <div className="p-8 text-center text-sm text-slate-500">
+            {t("creator.loadingSubmissions")}
+          </div>
         ) : submissions.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>{t("creator.noSubmissions")}</p>
+          <div className="p-12 text-center text-sm text-slate-400">
+            {t("creator.noSubmissions")}
+          </div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>{t("creator.colId")}</th>
-                <th>{t("creator.colCampaign")}</th>
-                <th>{t("creator.colUrl")}</th>
-                <th>{t("creator.colStatus")}</th>
-                <th>{t("creator.colReason")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {submissions.map((s) => (
-                <tr key={s.id}>
-                  <td>{s.id}</td>
-                  <td>{s.campaignId}</td>
-                  <td>
-                    <a href={s.tiktokUrl} target="_blank" rel="noreferrer">
-                      {s.tiktokUrl.length > 35 ? s.tiktokUrl.substring(0, 35) + "..." : s.tiktokUrl}
-                    </a>
-                  </td>
-                  <td>
-                    <span className={`badge badge-${s.status}`}>
-                      {t(`status.${s.status}`)}
-                    </span>
-                  </td>
-                  <td>{s.reason || "—"}</td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-600">
+              <thead className="bg-slate-50 text-slate-700 text-xs uppercase font-semibold border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-3.5">{t("creator.colId")}</th>
+                  <th className="px-6 py-3.5">{t("creator.colCampaign")}</th>
+                  <th className="px-6 py-3.5">{t("creator.colUrl")}</th>
+                  <th className="px-6 py-3.5">{t("creator.colStatus")}</th>
+                  <th className="px-6 py-3.5">{t("creator.colReason")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {submissions.map((s) => (
+                  <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="px-6 py-4 font-mono text-xs text-slate-500">{s.id}</td>
+                    <td className="px-6 py-4 font-medium text-slate-800">{s.campaignId}</td>
+                    <td className="px-6 py-4">
+                      <a
+                        href={s.tiktokUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-indigo-600 hover:text-indigo-800 underline truncate block max-w-xs"
+                      >
+                        {s.tiktokUrl}
+                      </a>
+                    </td>
+                    <td className="px-6 py-4">
+                      <StatusBadge status={s.status} label={t(`status.${s.status}`)} />
+                    </td>
+                    <td className="px-6 py-4 text-xs text-slate-500">
+                      {s.reason || "—"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
@@ -514,168 +598,209 @@ function OpsScreen({
   });
 
   return (
-    <div>
+    <div className="space-y-6">
       {/* Payout Export Card */}
-      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h3 style={{ margin: "0 0 0.25rem 0" }}>{t("ops.exportTitle")}</h3>
-          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">
+            {t("ops.exportTitle")}
+          </h3>
+          <p className="text-xs text-slate-500 mt-0.5">
             {t("ops.exportDesc")}
           </p>
         </div>
-        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+        <div className="flex items-center gap-3">
           <input
             type="month"
-            className="input"
-            style={{ width: "auto", margin: 0 }}
+            className="px-3.5 py-2 text-sm bg-white border border-slate-300 rounded-xl shadow-2xs focus:ring-2 focus:ring-indigo-500 outline-hidden"
             value={exportMonth}
             onChange={(e) => setExportMonth(e.target.value)}
           />
-          <button className="btn" onClick={handleExportCsv}>
+          <button
+            type="button"
+            className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-xs transition-colors cursor-pointer"
+            onClick={handleExportCsv}
+          >
             {t("ops.btnExport")}
           </button>
         </div>
       </div>
 
-      <div className="card">
-        <h2>{t("ops.queueTitle")}</h2>
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+      {/* Review Queue Card */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>{t("ops.filterStatusLabel")}</label>
-            <select
-              className="select"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">{t("ops.allStatuses")}</option>
-              <option value="pending">{t("status.pending")}</option>
-              <option value="approved">{t("status.approved")}</option>
-              <option value="rejected">{t("status.rejected")}</option>
-              <option value="paid">{t("status.paid")}</option>
-            </select>
+            <h2 className="text-lg font-bold text-slate-900 tracking-tight">
+              {t("ops.queueTitle")}
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Review and audit creator video submissions
+            </p>
           </div>
-          <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>{t("ops.filterCampaignLabel")}</label>
-            <select
-              className="select"
-              value={campaignFilter}
-              onChange={(e) => setCampaignFilter(e.target.value)}
-            >
-              <option value="all">{t("ops.allCampaigns")}</option>
-              {campaigns.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.title}
-                </option>
-              ))}
-            </select>
+
+          {/* Filters */}
+          <div className="flex flex-wrap items-center gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">
+                {t("ops.filterStatusLabel")}
+              </label>
+              <select
+                className="px-3 py-1.5 text-xs font-medium bg-white border border-slate-300 rounded-lg shadow-2xs focus:ring-2 focus:ring-indigo-500 outline-hidden"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">{t("ops.allStatuses")}</option>
+                <option value="pending">{t("status.pending")}</option>
+                <option value="approved">{t("status.approved")}</option>
+                <option value="rejected">{t("status.rejected")}</option>
+                <option value="paid">{t("status.paid")}</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold uppercase text-slate-500 mb-1">
+                {t("ops.filterCampaignLabel")}
+              </label>
+              <select
+                className="px-3 py-1.5 text-xs font-medium bg-white border border-slate-300 rounded-lg shadow-2xs focus:ring-2 focus:ring-indigo-500 outline-hidden"
+                value={campaignFilter}
+                onChange={(e) => setCampaignFilter(e.target.value)}
+              >
+                <option value="all">{t("ops.allCampaigns")}</option>
+                {campaigns.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.title}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
 
         {loading ? (
-          <p>{t("ops.loadingQueue")}</p>
+          <div className="p-8 text-center text-sm text-slate-500">
+            {t("ops.loadingQueue")}
+          </div>
         ) : filteredSubmissions.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>{t("ops.noQueueMatches")}</p>
+          <div className="p-12 text-center text-sm text-slate-400">
+            {t("ops.noQueueMatches")}
+          </div>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>{t("ops.colId")}</th>
-                <th>{t("ops.colCampaign")}</th>
-                <th>{t("ops.colCreator")}</th>
-                <th>{t("ops.colUrl")}</th>
-                <th>{t("ops.colStatus")}</th>
-                <th>{t("ops.colActions")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredSubmissions.map((s) => {
-                const isItemLoading = actionLoadingId === s.id;
-                return (
-                  <tr key={s.id}>
-                    <td>{s.id}</td>
-                    <td>{s.campaignId}</td>
-                    <td>{s.creatorId}</td>
-                    <td>
-                      <a href={s.tiktokUrl} target="_blank" rel="noreferrer">
-                        {s.tiktokUrl.length > 25 ? s.tiktokUrl.substring(0, 25) + "..." : s.tiktokUrl}
-                      </a>
-                    </td>
-                    <td>
-                      <span className={`badge badge-${s.status}`}>{t(`status.${s.status}`)}</span>
-                      {s.reason && (
-                        <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
-                          {s.reason}
-                        </div>
-                      )}
-                    </td>
-                    <td>
-                      {s.status === "pending" ? (
-                        <div style={{ display: "flex", gap: "0.5rem" }}>
-                          <button
-                            className="btn btn-success"
-                            style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem" }}
-                            disabled={isItemLoading}
-                            onClick={() => handleApprove(s)}
-                          >
-                            {t("ops.btnApprove")}
-                          </button>
-                          <button
-                            className="btn btn-danger"
-                            style={{ padding: "0.3rem 0.6rem", fontSize: "0.8rem" }}
-                            disabled={isItemLoading}
-                            onClick={() => {
-                              setRejectingSubId(s.id);
-                              setRejectReason("");
-                              setRejectReasonError(null);
-                            }}
-                          >
-                            {t("ops.btnReject")}
-                          </button>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{t("ops.actionNone")}</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-600">
+              <thead className="bg-slate-50 text-slate-700 text-xs uppercase font-semibold border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-3.5">{t("ops.colId")}</th>
+                  <th className="px-6 py-3.5">{t("ops.colCampaign")}</th>
+                  <th className="px-6 py-3.5">{t("ops.colCreator")}</th>
+                  <th className="px-6 py-3.5">{t("ops.colUrl")}</th>
+                  <th className="px-6 py-3.5">{t("ops.colStatus")}</th>
+                  <th className="px-6 py-3.5 text-right">{t("ops.colActions")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredSubmissions.map((s) => {
+                  const isItemLoading = actionLoadingId === s.id;
+                  return (
+                    <tr key={s.id} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="px-6 py-4 font-mono text-xs text-slate-500">{s.id}</td>
+                      <td className="px-6 py-4 font-medium text-slate-800">{s.campaignId}</td>
+                      <td className="px-6 py-4 text-xs font-mono text-slate-600">{s.creatorId}</td>
+                      <td className="px-6 py-4">
+                        <a
+                          href={s.tiktokUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-indigo-600 hover:text-indigo-800 underline truncate block max-w-xs text-xs"
+                        >
+                          {s.tiktokUrl}
+                        </a>
+                      </td>
+                      <td className="px-6 py-4">
+                        <StatusBadge status={s.status} label={t(`status.${s.status}`)} />
+                        {s.reason && (
+                          <div className="text-[11px] text-slate-500 mt-1 italic">
+                            "{s.reason}"
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        {s.status === "pending" ? (
+                          <div className="inline-flex items-center gap-2">
+                            <button
+                              type="button"
+                              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                              disabled={isItemLoading}
+                              onClick={() => handleApprove(s)}
+                            >
+                              {t("ops.btnApprove")}
+                            </button>
+                            <button
+                              type="button"
+                              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-red-600 hover:bg-red-700 text-white shadow-2xs transition-colors cursor-pointer disabled:opacity-50"
+                              disabled={isItemLoading}
+                              onClick={() => {
+                                setRejectingSubId(s.id);
+                                setRejectReason("");
+                                setRejectReasonError(null);
+                              }}
+                            >
+                              {t("ops.btnReject")}
+                            </button>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-slate-400 font-medium">
+                            {t("ops.actionNone")}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 
+      {/* Reject Modal */}
       {rejectingSubId && (
-        <div className="modal-backdrop">
-          <div className="modal">
-            <h3>{t("ops.rejectModalTitle")}</h3>
-            <p style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
+        <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-900 tracking-tight">
+              {t("ops.rejectModalTitle")}
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">
               {t("ops.rejectModalDesc", { id: rejectingSubId })}
             </p>
-            <textarea
-              rows={3}
-              className="input"
-              value={rejectReason}
-              placeholder={t("ops.rejectReasonPlaceholder")}
-              onChange={(e) => {
-                setRejectReason(e.target.value);
-                setRejectReasonError(null);
-              }}
-            />
-            {rejectReasonError && (
-              <span style={{ color: "var(--danger)", fontSize: "0.85rem", marginTop: "0.25rem", display: "block" }}>
-                {rejectReasonError}
-              </span>
-            )}
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "1rem" }}>
+            <div className="mt-4">
+              <textarea
+                rows={3}
+                className="w-full p-3 text-sm bg-white border border-slate-300 rounded-xl shadow-2xs focus:ring-2 focus:ring-red-500 outline-hidden"
+                value={rejectReason}
+                placeholder={t("ops.rejectReasonPlaceholder")}
+                onChange={(e) => {
+                  setRejectReason(e.target.value);
+                  setRejectReasonError(null);
+                }}
+              />
+              {rejectReasonError && (
+                <p className="mt-1.5 text-xs text-red-600 font-medium">
+                  {rejectReasonError}
+                </p>
+              )}
+            </div>
+            <div className="flex justify-end gap-3 mt-6">
               <button
-                className="btn btn-secondary"
+                type="button"
+                className="px-4 py-2 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors cursor-pointer"
                 onClick={() => setRejectingSubId(null)}
                 disabled={actionLoadingId !== null}
               >
                 {t("ops.btnCancel")}
               </button>
               <button
-                className="btn btn-danger"
+                type="button"
+                className="px-4 py-2 text-xs font-semibold text-white bg-red-600 hover:bg-red-700 rounded-xl shadow-xs transition-colors cursor-pointer"
                 onClick={handleConfirmReject}
                 disabled={actionLoadingId !== null}
               >
@@ -686,6 +811,25 @@ function OpsScreen({
         </div>
       )}
     </div>
+  );
+}
+
+function StatusBadge({ status, label }: { status: string; label: string }) {
+  const styles: Record<string, string> = {
+    pending: "bg-amber-50 text-amber-700 border-amber-200",
+    approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    rejected: "bg-red-50 text-red-700 border-red-200",
+    paid: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold border ${
+        styles[status] || "bg-slate-100 text-slate-700 border-slate-200"
+      }`}
+    >
+      {label}
+    </span>
   );
 }
 
