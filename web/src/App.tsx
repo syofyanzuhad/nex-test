@@ -211,9 +211,9 @@ function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
   const { t } = useI18n();
 
   const accounts = [
-    { email: "ops@nex.test", label: t("auth.loginOps"), role: "Operations Staff", color: "border-indigo-500 hover:bg-indigo-50/50" },
-    { email: "creator1@nex.test", label: t("auth.loginCreatorA"), role: "Creator Account 1", color: "border-emerald-500 hover:bg-emerald-50/50" },
-    { email: "creator2@nex.test", label: t("auth.loginCreatorB"), role: "Creator Account 2", color: "border-sky-500 hover:bg-sky-50/50" },
+    { email: "ops@example.com", label: t("auth.loginOps"), role: "Operations Staff", color: "border-indigo-500 hover:bg-indigo-50/50" },
+    { email: "a@example.com", label: t("auth.loginCreatorA"), role: "Creator Account 1", color: "border-emerald-500 hover:bg-emerald-50/50" },
+    { email: "b@example.com", label: t("auth.loginCreatorB"), role: "Creator Account 2", color: "border-sky-500 hover:bg-sky-50/50" },
   ];
 
   return (
