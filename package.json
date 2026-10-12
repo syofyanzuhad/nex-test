@@ -6,7 +6,9 @@
   "scripts": {
     "emulators": "firebase emulators:start --only auth,firestore,functions --project demo-nex",
     "seed": "tsx scripts/seed.ts",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-nex \"vitest run test/rules\""
+    "test:rules": "firebase emulators:exec --only firestore --project demo-nex \"vitest run test/rules\"",
+    "test:functions": "cd functions && npm run build && cd .. && firebase emulators:exec --project demo-nex --only auth,firestore,functions \"vitest run test/functions.test.ts\"",
+    "test": "npm run test:rules && npm run test:functions"
   },
   "devDependencies": {
     "firebase-admin": "^13.1.0",
