@@ -18,6 +18,7 @@ import { httpsCallable } from "firebase/functions";
 import { auth, db, functions } from "./lib/firebase";
 import { validateTiktokUrl } from "./lib/validation";
 import { mapFirebaseError } from "./lib/errorMapping";
+import { generatePayoutCsv, type PayoutSubmission } from "./lib/payoutCsv";
 import "./App.css";
 
 interface Campaign {
@@ -44,7 +45,6 @@ export function App() {
   const [globalError, setGlobalError] = useState<string | null>(null);
   const [globalSuccess, setGlobalSuccess] = useState<string | null>(null);
 
-  // Auth observer
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -179,7 +179,6 @@ function CreatorScreen({
       onError(null);
       setLoading(true);
 
-      // Fetch open campaigns
       const campSnap = await getDocs(collection(db, "campaigns"));
       const camps = campSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Campaign));
       setCampaigns(camps);
@@ -187,7 +186,6 @@ function CreatorScreen({
         setSelectedCampaign(camps[0].id);
       }
 
-      // Fetch ONLY own submissions (R1.2 rules requirement: creatorId == auth.uid)
       const subQuery = query(
         collection(db, "submissions"),
         where("creatorId", "==", user.uid)
@@ -211,7 +209,6 @@ function CreatorScreen({
     setUrlValidationError(null);
     onError(null);
 
-    // Client-side validation (UX)
     const valResult = validateTiktokUrl(tiktokUrl);
     if (!valResult.valid) {
       setUrlValidationError(valResult.error!);
@@ -220,11 +217,9 @@ function CreatorScreen({
 
     try {
       setSubmitting(true);
-      // Unique submission ID
       const newSubId = `sub_${Date.now()}`;
       const subRef = doc(db, "submissions", newSubId);
 
-      // Must strictly match rules keys whitelist & values (R1.3)
       await setDoc(subRef, {
         campaignId: selectedCampaign,
         creatorId: user.uid,
@@ -347,6 +342,9 @@ function OpsScreen({
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [campaignFilter, setCampaignFilter] = useState<string>("all");
 
+  // Export Month selection (YYYY-MM)
+  const [exportMonth, setExportMonth] = useState<string>("2026-09");
+
   // Reject modal state
   const [rejectingSubId, setRejectingSubId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState<string>("");
@@ -358,9 +356,9 @@ function OpsScreen({
       setLoading(true);
 
       const campSnap = await getDocs(collection(db, "campaigns"));
-      setCampaigns(campSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Campaign)));
+      const loadedCamps = campSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Campaign));
+      setCampaigns(loadedCamps);
 
-      // Ops can read all submissions (R1.5)
       const subSnap = await getDocs(collection(db, "submissions"));
       setSubmissions(subSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Submission)));
     } catch (err) {
@@ -432,7 +430,44 @@ function OpsScreen({
     }
   };
 
-  // Filter items in memory
+  const handleExportCsv = () => {
+    const campaignMap = new Map<string, Campaign>();
+    campaigns.forEach((c) => campaignMap.set(c.id, c));
+
+    const payoutData: PayoutSubmission[] = submissions.map((s) => {
+      const camp = campaignMap.get(s.campaignId);
+      return {
+        id: s.id,
+        creatorId: s.creatorId,
+        campaignId: s.campaignId,
+        campaignTitle: camp?.title || s.campaignId,
+        tiktokUrl: s.tiktokUrl,
+        status: s.status,
+        createdAt: s.createdAt,
+        ratePerVideoTHB: camp?.ratePerVideoTHB || 0,
+      };
+    });
+
+    const { csvString, rowCount, totalTHB } = generatePayoutCsv(payoutData, exportMonth);
+
+    if (rowCount === 0) {
+      onError(`No approved submissions found for month ${exportMonth} in Asia/Bangkok timezone.`);
+      return;
+    }
+
+    // Trigger browser download with UTF-8 BOM
+    const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `payout-${exportMonth}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    onSuccess(`Exported ${rowCount} payouts for ${exportMonth} (Total: ${totalTHB} THB)!`);
+  };
+
   const filteredSubmissions = submissions.filter((s) => {
     const matchesStatus = statusFilter === "all" || s.status === statusFilter;
     const matchesCamp = campaignFilter === "all" || s.campaignId === campaignFilter;
@@ -441,6 +476,28 @@ function OpsScreen({
 
   return (
     <div>
+      {/* Payout Export Card */}
+      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div>
+          <h3 style={{ margin: "0 0 0.25rem 0" }}>Monthly Payout Export (R4.2)</h3>
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
+            Generates UTF-8 BOM CSV with anti-formula injection for approved submissions (Asia/Bangkok).
+          </p>
+        </div>
+        <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
+          <input
+            type="month"
+            className="input"
+            style={{ width: "auto", margin: 0 }}
+            value={exportMonth}
+            onChange={(e) => setExportMonth(e.target.value)}
+          />
+          <button className="btn" onClick={handleExportCsv}>
+            Export Payout CSV
+          </button>
+        </div>
+      </div>
+
       <div className="card">
         <h2>Ops Review Queue</h2>
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
@@ -592,4 +649,5 @@ function OpsScreen({
     </div>
   );
 }
+
 export default App;
