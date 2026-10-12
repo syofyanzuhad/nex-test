@@ -1,0 +1,8 @@
+﻿name,email,tiktokHandle,city
+Somchai Jaidee,somchai@example.com,@somchai,Bangkok
+"Nguyen, Linh",linh@example.com,@linh,"Chiang Mai, TH"
+สมศรีใจดี,somsri@example.com,@somsri,Phuket
+Duplicate Person,somchai@example.com,@duplicate,Bangkok
+,not-an-email,@noname,Pattaya
+=HYPERLINK("http://evil.com"),evil@example.com,@evil,Bangkok
+Mali No At,mali@example.com,mali.no.at,Bangkok

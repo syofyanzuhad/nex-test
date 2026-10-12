@@ -3,7 +3,7 @@
 Source: nex-test-docs/ROADMAP.md (7 phases, 3–4h, vertical, commit per phase). A phase is done only with verification evidence.
 
 ## Phases
-- [ ] **Phase 0: Walking skeleton** — repo, firebase.json, seed (ISO→Timestamp, ops claim), `npm run emulators/seed`
+- [x] **Phase 0: Walking skeleton** — repo, firebase.json, seed (ISO→Timestamp, ops claim), `npm run emulators/seed`
 - [ ] **Phase 1: Rules + tests** — R1.1–R1.7
 - [ ] **Phase 2: Callables + tests** — R2.1–R2.8 (state machine, transaction, auditLog, concurrency)
 - [ ] **Phase 3: React** — R3.1–R3.3
