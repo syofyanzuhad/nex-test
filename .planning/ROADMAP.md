@@ -9,7 +9,7 @@ Source: nex-test-docs/ROADMAP.md (7 phases, 3–4h, vertical, commit per phase).
 - [x] **Phase 3: React** — R3.1–R3.3
 - [x] **Phase 4: CSV** — R4.1–R4.3
 - [x] **Phase 5: i18n** — R5.1–R5.2
-- [ ] **Phase 6: NOTES, README, video** — R6.x, R7.x
+- [x] **Phase 6: NOTES, README, video** — R6.x, R7.x
 
 ## Phase Details
 ### Phase 0 — Walking skeleton (≈20 mnt)

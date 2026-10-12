@@ -11,7 +11,7 @@
     "test": "npm run test:rules && npm run test:functions && npm run test:web && npm run test:scripts && npm run check:i18n",
     "dev": "npm run dev --prefix web",
     "test:web": "vitest run web/src",
-    "import:creators": "tsx scripts/import-creators.ts",
+    "import:creators": "firebase emulators:exec --project demo-nex --only firestore \"tsx scripts/import-creators.ts\"",
     "test:scripts": "vitest run scripts/lib",
     "check:i18n": "tsx scripts/check-i18n.ts"
   },
