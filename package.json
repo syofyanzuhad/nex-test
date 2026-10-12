@@ -5,12 +5,16 @@
   "description": "Nex Submission Review Slice technical test",
   "scripts": {
     "emulators": "firebase emulators:start --only auth,firestore,functions --project demo-nex",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-nex \"vitest run test/rules\""
   },
   "devDependencies": {
     "firebase-admin": "^13.1.0",
     "firebase-tools": "^13.31.0",
     "tsx": "^4.19.3",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "@firebase/rules-unit-testing": "^3.0.4",
+    "firebase": "^10.14.1",
+    "vitest": "^3.0.8"
   }
 }

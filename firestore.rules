@@ -1,6 +1,69 @@
 rules_version = '2';
 service cloud.firestore {
-  match /databases/{database}/documents {
+  match /databases/{db}/documents {
+
+    // Helper functions
+    // Mengapa signedIn: memastikan request memiliki kredensial auth valid
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    // Mengapa isOps: otorisasi ops hanya dari token claim 'ops == true', bukan dari role field di database (D2)
+    function isOps() {
+      return signedIn() && request.auth.token.ops == true;
+    }
+
+    // Campaigns collection:
+    // Mengapa read signedIn: creator dan ops butuh melihat campaign yang tersedia
+    // Mengapa write false: manajemen campaign bukan lingkup test, hanya diubah via admin/seed
+    match /campaigns/{id} {
+      allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // Submissions collection:
+    // Mengapa read: ops bisa baca semua submission untuk review; creator hanya bisa baca miliknya
+    // Mengapa create: creator submit video dengan validasi ketat
+    // Mengapa update/delete false: semua transisi state submission dikunci, hanya lewat Cloud Functions callable (R1.4, D4)
+    match /submissions/{id} {
+      allow read: if isOps() || (signedIn() && resource.data.creatorId == request.auth.uid);
+
+      allow create: if signedIn()
+        // Mengapa hasOnly & hasAll: cegah field injection (misal role, isAdmin, status manipulatif)
+        && request.resource.data.keys().hasOnly(['campaignId', 'creatorId', 'tiktokUrl', 'status', 'createdAt'])
+        && request.resource.data.keys().hasAll(['campaignId', 'creatorId', 'tiktokUrl', 'status', 'createdAt'])
+        // Mengapa creatorId: pastikan creator hanya submit atas nama dirinya sendiri (R1.3)
+        && request.resource.data.creatorId == request.auth.uid
+        // Mengapa status 'pending': creator tidak boleh set status lain (D3 pilihan A)
+        && request.resource.data.status == 'pending'
+        // Mengapa request.time: mencegah manipulasi tanggal createdAt dari klien
+        && request.resource.data.createdAt == request.time
+        // Mengapa regex: memastikan domain resmi tiktok (tiktok.com, vm.tiktok.com, vt.tiktok.com), mencegah domain spoofing seperti evil.com/tiktok.com
+        && request.resource.data.tiktokUrl is string
+        && request.resource.data.tiktokUrl.matches('^https://(www\\.|vm\\.|vt\\.)?tiktok\\.com/.+')
+        // Mengapa get(): verifikasi campaign tujuan aktif dan berstatus 'open'. Jika campaign tidak ada/closed, get() gagal -> deny
+        && get(/databases/$(db)/documents/campaigns/$(request.resource.data.campaignId)).data.status == 'open';
+
+      allow update, delete: if false;
+    }
+
+    // Audit logs:
+    // Mengapa read isOps: audit trail hanya untuk internal ops
+    // Mengapa write false: hanya ditulis oleh callable via Admin SDK di dalam transaksi atomik
+    match /auditLogs/{id} {
+      allow read: if isOps();
+      allow write: if false;
+    }
+
+    // Creators:
+    // Mengapa read isOps: direktori creator untuk ops
+    // Mengapa write false: hanya diimpor lewat skrip Admin SDK
+    match /creators/{id} {
+      allow read: if isOps();
+      allow write: if false;
+    }
+
+    // Default catch-all: deny all other collections
     match /{document=**} {
       allow read, write: if false;
     }
