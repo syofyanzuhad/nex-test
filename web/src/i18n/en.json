@@ -1,0 +1,91 @@
+{
+  "app": {
+    "title": "Nex Submission Review",
+    "subtitle": "Technical Test — Local Emulators Only",
+    "signOut": "Sign Out",
+    "loading": "Loading application state..."
+  },
+  "auth": {
+    "title": "Sign In with Seed Account",
+    "subtitle": "Select a seed user to test authorization and views:",
+    "loginOps": "Login as Ops (ops@example.com)",
+    "loginCreatorA": "Login as Creator A (a@example.com)",
+    "loginCreatorB": "Login as Creator B (b@example.com)",
+    "roleOps": "Ops",
+    "roleCreator": "Creator"
+  },
+  "creator": {
+    "submitTitle": "Submit TikTok Video",
+    "campaignLabel": "Campaign",
+    "tiktokUrlLabel": "TikTok URL",
+    "tiktokUrlPlaceholder": "https://www.tiktok.com/@creator/video/123... or https://vm.tiktok.com/...",
+    "submitButton": "Submit Video",
+    "submittingButton": "Submitting...",
+    "mySubmissionsTitle": "My Submissions",
+    "loadingSubmissions": "Loading submissions...",
+    "noSubmissions": "No submissions found.",
+    "colId": "ID",
+    "colCampaign": "Campaign",
+    "colUrl": "TikTok URL",
+    "colStatus": "Status",
+    "colReason": "Reason",
+    "successSubmit": "Submission created successfully!"
+  },
+  "ops": {
+    "queueTitle": "Ops Review Queue",
+    "filterStatusLabel": "Filter Status",
+    "filterCampaignLabel": "Filter Campaign",
+    "allStatuses": "All Statuses",
+    "allCampaigns": "All Campaigns",
+    "loadingQueue": "Loading queue...",
+    "noQueueMatches": "No submissions match the selected filters.",
+    "colId": "ID",
+    "colCampaign": "Campaign",
+    "colCreator": "Creator",
+    "colUrl": "TikTok URL",
+    "colStatus": "Status",
+    "colActions": "Actions",
+    "btnApprove": "Approve",
+    "btnReject": "Reject",
+    "actionNone": "None",
+    "approvedSuccess": "Submission {id} approved!",
+    "alreadyApproved": "Submission {id} was already approved (no change).",
+    "rejectedSuccess": "Submission {id} rejected.",
+    "alreadyRejected": "Submission {id} was already rejected (no change).",
+    "rejectModalTitle": "Reject Submission",
+    "rejectModalDesc": "Please provide a clear reason for rejecting submission {id} (required):",
+    "rejectReasonPlaceholder": "e.g. Video quality too low or missing campaign hashtag",
+    "rejectReasonRequired": "Rejection reason is required",
+    "btnCancel": "Cancel",
+    "btnConfirmReject": "Confirm Reject",
+    "exportTitle": "Monthly Payout Export (R4.2)",
+    "exportDesc": "Generates UTF-8 BOM CSV with anti-formula injection for approved submissions (Asia/Bangkok).",
+    "btnExport": "Export Payout CSV",
+    "noApprovedInMonth": "No approved submissions found for month {month} in Asia/Bangkok timezone.",
+    "exportSuccess": "Exported {count} payouts for {month} (Total: {total} THB)!"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "paid": "Paid"
+  },
+  "validation": {
+    "urlRequired": "TikTok URL is required",
+    "urlInvalidFormat": "Invalid TikTok URL format. Must start with https:// and belong to tiktok.com, vm.tiktok.com, or vt.tiktok.com"
+  },
+  "errors": {
+    "unexpected": "An unexpected error occurred.",
+    "permissionDenied": "Permission denied. You do not have permission to perform this action.",
+    "unauthenticated": "You are not logged in. Please sign in to continue.",
+    "cannotApproveNotPending": "Cannot approve: this submission is not in pending status.",
+    "cannotRejectNotPending": "Cannot reject: this submission is not in pending status.",
+    "rejectReasonRequired": "Rejection requires a non-empty reason.",
+    "onlyApprovedCanBePaid": "Only approved submissions can be marked paid.",
+    "actionNotPermitted": "Action not permitted: {message}",
+    "invalidInput": "Invalid input provided. Please verify the submitted information.",
+    "recordNotFound": "The requested record was not found.",
+    "rulesDenied": "Request denied by security rules. Ensure the campaign is open and you are submitting with your own account.",
+    "serviceUnavailable": "Service unavailable. Please ensure Firebase emulators are running."
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "app": {
+    "title": "ระบบตรวจสอบผลงาน Nex",
+    "subtitle": "แบบทดสอบทางเทคนิค — ใช้งาน Firebase Emulator ภายในเครื่องเท่านั้น",
+    "signOut": "ออกจากระบบ",
+    "loading": "กำลังโหลดสถานะแอปพลิเคชัน..."
+  },
+  "auth": {
+    "title": "เข้าสู่ระบบด้วยบัญชีทดสอบ",
+    "subtitle": "เลือกผู้ใช้เพื่อทดสอบสิทธิ์การเข้าถึงและมุมมองหน้าจอ:",
+    "loginOps": "เข้าสู่ระบบในฐานะ Ops (ops@example.com)",
+    "loginCreatorA": "เข้าสู่ระบบในฐานะ ครีเอเตอร์ A (a@example.com)",
+    "loginCreatorB": "เข้าสู่ระบบในฐานะ ครีเอเตอร์ B (b@example.com)",
+    "roleOps": "เจ้าหน้าที่ (Ops)",
+    "roleCreator": "ครีเอเตอร์"
+  },
+  "creator": {
+    "submitTitle": "ส่งวิดีโอ TikTok",
+    "campaignLabel": "แคมเปญ",
+    "tiktokUrlLabel": "ลิงก์ TikTok",
+    "tiktokUrlPlaceholder": "https://www.tiktok.com/@creator/video/123... หรือ https://vm.tiktok.com/...",
+    "submitButton": "ส่งผลงาน",
+    "submittingButton": "กำลังส่ง...",
+    "mySubmissionsTitle": "รายการผลงานของฉัน",
+    "loadingSubmissions": "กำลังโหลดรายการผลงาน...",
+    "noSubmissions": "ไม่พบรายการผลงาน",
+    "colId": "รหัส",
+    "colCampaign": "แคมเปญ",
+    "colUrl": "ลิงก์ TikTok",
+    "colStatus": "สถานะ",
+    "colReason": "เหตุผล",
+    "successSubmit": "ส่งผลงานสำเร็จเรียบร้อยแล้ว!"
+  },
+  "ops": {
+    "queueTitle": "คิวตรวจสอบผลงาน (Ops)",
+    "filterStatusLabel": "กรองตามสถานะ",
+    "filterCampaignLabel": "กรองตามแคมเปญ",
+    "allStatuses": "ทุกสถานะ",
+    "allCampaigns": "ทุกแคมเปญ",
+    "loadingQueue": "กำลังโหลดคิวงาน...",
+    "noQueueMatches": "ไม่พบรายการที่ตรงกับตัวกรองที่เลือก",
+    "colId": "รหัส",
+    "colCampaign": "แคมเปญ",
+    "colCreator": "ครีเอเตอร์",
+    "colUrl": "ลิงก์ TikTok",
+    "colStatus": "สถานะ",
+    "colActions": "การดำเนินการ",
+    "btnApprove": "อนุมัติ",
+    "btnReject": "ปฏิเสธ",
+    "actionNone": "ไม่มี",
+    "approvedSuccess": "อนุมัติผลงาน {id} สำเร็จแล้ว!",
+    "alreadyApproved": "ผลงาน {id} ได้รับการอนุมัติไปแล้ว (ไม่มีการเปลี่ยนแปลง)",
+    "rejectedSuccess": "ปฏิเสธผลงาน {id} แล้ว",
+    "alreadyRejected": "ผลงาน {id} ถูกปฏิเสธไปแล้ว (ไม่มีการเปลี่ยนแปลง)",
+    "rejectModalTitle": "ปฏิเสธผลงาน",
+    "rejectModalDesc": "โปรดระบุเหตุผลในการปฏิเสธผลงาน {id} (จำเป็น):",
+    "rejectReasonPlaceholder": "เช่น คุณภาพวิดีโอต่ำเกินไป หรือไม่มีแฮชแท็กแคมเปญ",
+    "rejectReasonRequired": "จำเป็นต้องระบุเหตุผลในการปฏิเสธ",
+    "btnCancel": "ยกเลิก",
+    "btnConfirmReject": "ยืนยันการปฏิเสธ",
+    "exportTitle": "ส่งออกข้อมูลจ่ายเงินรายเดือน (R4.2)",
+    "exportDesc": "สร้างไฟล์ CSV เข้ารหัส UTF-8 BOM และป้องกันการฉีดสูตรคำนวณ สำหรับผลงานที่อนุมัติแล้ว (เวลาเอเชีย/กรุงเทพฯ)",
+    "btnExport": "ส่งออกไฟล์ CSV",
+    "noApprovedInMonth": "ไม่พบรายการที่อนุมัติสำหรับเดือน {month} ตามเขตเวลาเอเชีย/กรุงเทพฯ",
+    "exportSuccess": "ส่งออกรายการจ่ายเงินจำนวน {count} รายการ สำหรับเดือน {month} (ยอดรวม: {total} บาท) เรียบร้อยแล้ว!"
+  },
+  "status": {
+    "pending": "รอดำเนินการ",
+    "approved": "อนุมัติแล้ว",
+    "rejected": "ปฏิเสธ",
+    "paid": "จ่ายเงินแล้ว"
+  },
+  "validation": {
+    "urlRequired": "จำเป็นต้องระบุลิงก์ TikTok",
+    "urlInvalidFormat": "รูปแบบลิงก์ TikTok ไม่ถูกต้อง ต้องขึ้นต้นด้วย https:// และเป็นโดเมน tiktok.com, vm.tiktok.com หรือ vt.tiktok.com"
+  },
+  "errors": {
+    "unexpected": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
+    "permissionDenied": "การเข้าถึงถูกปฏิเสธ คุณไม่มีสิทธิ์ในการดำเนินการนี้",
+    "unauthenticated": "คุณยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบก่อนดำเนินการ",
+    "cannotApproveNotPending": "ไม่สามารถอนุมัติได้: รายการนี้ไม่ได้อยู่ในสถานะรอดำเนินการ",
+    "cannotRejectNotPending": "ไม่สามารถปฏิเสธได้: รายการนี้ไม่ได้อยู่ในสถานะรอดำเนินการ",
+    "rejectReasonRequired": "การปฏิเสธจำเป็นต้องระบุเหตุผลที่ไม่ใช่ช่องว่าง",
+    "onlyApprovedCanBePaid": "สามารถระบุว่าจ่ายเงินแล้วได้เฉพาะผลงานที่ได้รับการอนุมัติเท่านั้น",
+    "actionNotPermitted": "ไม่อนุญาตให้ดำเนินการ: {message}",
+    "invalidInput": "ข้อมูลที่ป้อนไม่ถูกต้อง โปรดตรวจสอบข้อมูลอีกครั้ง",
+    "recordNotFound": "ไม่พบข้อมูลที่ระบุ",
+    "rulesDenied": "คำขอถูกปฏิเสธโดย Security Rules ตรวจสอบว่าแคมเปญยังเปิดอยู่และคุณส่งผลงานด้วยบัญชีของตนเอง",
+    "serviceUnavailable": "บริการไม่พร้อมใช้งาน โปรดตรวจสอบว่า Firebase Emulator ทำงานอยู่"
+  }
+}

@@ -19,6 +19,7 @@ import { auth, db, functions } from "./lib/firebase";
 import { validateTiktokUrl } from "./lib/validation";
 import { mapFirebaseError } from "./lib/errorMapping";
 import { generatePayoutCsv, type PayoutSubmission } from "./lib/payoutCsv";
+import { I18nProvider, useI18n } from "./i18n/I18nContext";
 import "./App.css";
 
 interface Campaign {
@@ -38,7 +39,8 @@ interface Submission {
   createdAt?: any;
 }
 
-export function App() {
+export function AppContent() {
+  const { lang, setLang, t } = useI18n();
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isOps, setIsOps] = useState<boolean>(false);
   const [loadingAuth, setLoadingAuth] = useState<boolean>(true);
@@ -48,7 +50,6 @@ export function App() {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
-        // Force refresh token to ensure ops claim is loaded (D2)
         const idTokenResult = await user.getIdTokenResult(true);
         setCurrentUser(user);
         setIsOps(idTokenResult.claims.ops === true);
@@ -66,7 +67,7 @@ export function App() {
       setGlobalError(null);
       await signInWithEmailAndPassword(auth, email, "password123");
     } catch (err) {
-      setGlobalError(mapFirebaseError(err));
+      setGlobalError(mapFirebaseError(err, t));
     }
   };
 
@@ -75,28 +76,58 @@ export function App() {
   };
 
   if (loadingAuth) {
-    return <div className="container"><p>Loading application state...</p></div>;
+    return <div className="container"><p>{t("app.loading")}</p></div>;
   }
 
   return (
     <div className="container">
       <header className="header">
         <div>
-          <h1 style={{ margin: 0, fontSize: "1.5rem" }}>Nex Submission Review</h1>
+          <h1 style={{ margin: 0, fontSize: "1.5rem" }}>{t("app.title")}</h1>
           <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "0.85rem" }}>
-            Technical Test — Local Emulators Only
+            {t("app.subtitle")}
           </p>
         </div>
-        {currentUser && (
-          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            <span>
-              <strong>{currentUser.email}</strong> ({isOps ? "Ops" : "Creator"})
-            </span>
-            <button className="btn btn-secondary" onClick={handleLogout}>
-              Sign Out
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          {/* Language Toggle (R5.1) */}
+          <div style={{ display: "flex", background: "#e2e8f0", borderRadius: "6px", padding: "2px" }}>
+            <button
+              className="btn"
+              style={{
+                padding: "0.25rem 0.6rem",
+                fontSize: "0.8rem",
+                background: lang === "en" ? "var(--primary)" : "transparent",
+                color: lang === "en" ? "#fff" : "#334155",
+              }}
+              onClick={() => setLang("en")}
+            >
+              EN
+            </button>
+            <button
+              className="btn"
+              style={{
+                padding: "0.25rem 0.6rem",
+                fontSize: "0.8rem",
+                background: lang === "th" ? "var(--primary)" : "transparent",
+                color: lang === "th" ? "#fff" : "#334155",
+              }}
+              onClick={() => setLang("th")}
+            >
+              TH
             </button>
           </div>
-        )}
+
+          {currentUser && (
+            <>
+              <span>
+                <strong>{currentUser.email}</strong> ({isOps ? t("auth.roleOps") : t("auth.roleCreator")})
+              </span>
+              <button className="btn btn-secondary" onClick={handleLogout}>
+                {t("app.signOut")}
+              </button>
+            </>
+          )}
+        </div>
       </header>
 
       {globalError && (
@@ -134,22 +165,31 @@ export function App() {
   );
 }
 
+export function App() {
+  return (
+    <I18nProvider>
+      <AppContent />
+    </I18nProvider>
+  );
+}
+
 function LoginScreen({ onLogin }: { onLogin: (email: string) => void }) {
+  const { t } = useI18n();
   return (
     <div className="card">
-      <h2>Sign In with Seed Account</h2>
+      <h2>{t("auth.title")}</h2>
       <p style={{ color: "var(--text-muted)" }}>
-        Select a seed user to test authorization and views:
+        {t("auth.subtitle")}
       </p>
       <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", maxWidth: "320px", marginTop: "1rem" }}>
         <button className="btn" onClick={() => onLogin("ops@example.com")}>
-          Login as Ops (ops@example.com)
+          {t("auth.loginOps")}
         </button>
         <button className="btn btn-secondary" onClick={() => onLogin("a@example.com")}>
-          Login as Creator A (a@example.com)
+          {t("auth.loginCreatorA")}
         </button>
         <button className="btn btn-secondary" onClick={() => onLogin("b@example.com")}>
-          Login as Creator B (b@example.com)
+          {t("auth.loginCreatorB")}
         </button>
       </div>
     </div>
@@ -165,6 +205,7 @@ function CreatorScreen({
   onError: (msg: string | null) => void;
   onSuccess: (msg: string) => void;
 }) {
+  const { t } = useI18n();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,7 +235,7 @@ function CreatorScreen({
       const subs = subSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Submission));
       setSubmissions(subs);
     } catch (err) {
-      onError(mapFirebaseError(err));
+      onError(mapFirebaseError(err, t));
     } finally {
       setLoading(false);
     }
@@ -209,7 +250,7 @@ function CreatorScreen({
     setUrlValidationError(null);
     onError(null);
 
-    const valResult = validateTiktokUrl(tiktokUrl);
+    const valResult = validateTiktokUrl(tiktokUrl, t);
     if (!valResult.valid) {
       setUrlValidationError(valResult.error!);
       return;
@@ -229,10 +270,10 @@ function CreatorScreen({
       });
 
       setTiktokUrl("");
-      onSuccess("Submission created successfully!");
+      onSuccess(t("creator.successSubmit"));
       await fetchData();
     } catch (err) {
-      onError(mapFirebaseError(err));
+      onError(mapFirebaseError(err, t));
     } finally {
       setSubmitting(false);
     }
@@ -241,10 +282,10 @@ function CreatorScreen({
   return (
     <div>
       <div className="card">
-        <h2>Submit TikTok Video</h2>
+        <h2>{t("creator.submitTitle")}</h2>
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: "1rem" }}>
-            <label>Campaign</label>
+            <label>{t("creator.campaignLabel")}</label>
             <select
               className="select"
               value={selectedCampaign}
@@ -260,11 +301,11 @@ function CreatorScreen({
           </div>
 
           <div style={{ marginBottom: "1rem" }}>
-            <label>TikTok URL</label>
+            <label>{t("creator.tiktokUrlLabel")}</label>
             <input
               type="text"
               className="input"
-              placeholder="https://www.tiktok.com/@creator/video/123... or https://vm.tiktok.com/..."
+              placeholder={t("creator.tiktokUrlPlaceholder")}
               value={tiktokUrl}
               onChange={(e) => {
                 setTiktokUrl(e.target.value);
@@ -280,26 +321,26 @@ function CreatorScreen({
           </div>
 
           <button type="submit" className="btn" disabled={submitting}>
-            {submitting ? "Submitting..." : "Submit Video"}
+            {submitting ? t("creator.submittingButton") : t("creator.submitButton")}
           </button>
         </form>
       </div>
 
       <div className="card">
-        <h2>My Submissions</h2>
+        <h2>{t("creator.mySubmissionsTitle")}</h2>
         {loading ? (
-          <p>Loading submissions...</p>
+          <p>{t("creator.loadingSubmissions")}</p>
         ) : submissions.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>No submissions found.</p>
+          <p style={{ color: "var(--text-muted)" }}>{t("creator.noSubmissions")}</p>
         ) : (
           <table className="table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Campaign</th>
-                <th>TikTok URL</th>
-                <th>Status</th>
-                <th>Reason</th>
+                <th>{t("creator.colId")}</th>
+                <th>{t("creator.colCampaign")}</th>
+                <th>{t("creator.colUrl")}</th>
+                <th>{t("creator.colStatus")}</th>
+                <th>{t("creator.colReason")}</th>
               </tr>
             </thead>
             <tbody>
@@ -313,7 +354,9 @@ function CreatorScreen({
                     </a>
                   </td>
                   <td>
-                    <span className={`badge badge-${s.status}`}>{s.status}</span>
+                    <span className={`badge badge-${s.status}`}>
+                      {t(`status.${s.status}`)}
+                    </span>
                   </td>
                   <td>{s.reason || "—"}</td>
                 </tr>
@@ -333,19 +376,16 @@ function OpsScreen({
   onError: (msg: string | null) => void;
   onSuccess: (msg: string) => void;
 }) {
+  const { t } = useI18n();
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
-  // Filters
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [campaignFilter, setCampaignFilter] = useState<string>("all");
-
-  // Export Month selection (YYYY-MM)
   const [exportMonth, setExportMonth] = useState<string>("2026-09");
 
-  // Reject modal state
   const [rejectingSubId, setRejectingSubId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState<string>("");
   const [rejectReasonError, setRejectReasonError] = useState<string | null>(null);
@@ -362,7 +402,7 @@ function OpsScreen({
       const subSnap = await getDocs(collection(db, "submissions"));
       setSubmissions(subSnap.docs.map((d) => ({ id: d.id, ...d.data() } as Submission)));
     } catch (err) {
-      onError(mapFirebaseError(err));
+      onError(mapFirebaseError(err, t));
     } finally {
       setLoading(false);
     }
@@ -382,13 +422,13 @@ function OpsScreen({
       );
       const res = await reviewFn({ id: sub.id, decision: "approved" });
       if (res.data.changed) {
-        onSuccess(`Submission ${sub.id} approved!`);
+        onSuccess(t("ops.approvedSuccess", { id: sub.id }));
       } else {
-        onSuccess(`Submission ${sub.id} was already approved (no change).`);
+        onSuccess(t("ops.alreadyApproved", { id: sub.id }));
       }
       await fetchQueue();
     } catch (err) {
-      onError(mapFirebaseError(err));
+      onError(mapFirebaseError(err, t));
     } finally {
       setActionLoadingId(null);
     }
@@ -398,7 +438,7 @@ function OpsScreen({
     if (!rejectingSubId) return;
     const trimmed = rejectReason.trim();
     if (!trimmed) {
-      setRejectReasonError("Rejection reason is required");
+      setRejectReasonError(t("ops.rejectReasonRequired"));
       return;
     }
 
@@ -416,15 +456,15 @@ function OpsScreen({
       });
 
       if (res.data.changed) {
-        onSuccess(`Submission ${rejectingSubId} rejected.`);
+        onSuccess(t("ops.rejectedSuccess", { id: rejectingSubId }));
       } else {
-        onSuccess(`Submission ${rejectingSubId} was already rejected (no change).`);
+        onSuccess(t("ops.alreadyRejected", { id: rejectingSubId }));
       }
       setRejectingSubId(null);
       setRejectReason("");
       await fetchQueue();
     } catch (err) {
-      onError(mapFirebaseError(err));
+      onError(mapFirebaseError(err, t));
     } finally {
       setActionLoadingId(null);
     }
@@ -451,11 +491,10 @@ function OpsScreen({
     const { csvString, rowCount, totalTHB } = generatePayoutCsv(payoutData, exportMonth);
 
     if (rowCount === 0) {
-      onError(`No approved submissions found for month ${exportMonth} in Asia/Bangkok timezone.`);
+      onError(t("ops.noApprovedInMonth", { month: exportMonth }));
       return;
     }
 
-    // Trigger browser download with UTF-8 BOM
     const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -465,7 +504,7 @@ function OpsScreen({
     link.click();
     document.body.removeChild(link);
 
-    onSuccess(`Exported ${rowCount} payouts for ${exportMonth} (Total: ${totalTHB} THB)!`);
+    onSuccess(t("ops.exportSuccess", { count: rowCount, month: exportMonth, total: totalTHB }));
   };
 
   const filteredSubmissions = submissions.filter((s) => {
@@ -479,9 +518,9 @@ function OpsScreen({
       {/* Payout Export Card */}
       <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h3 style={{ margin: "0 0 0.25rem 0" }}>Monthly Payout Export (R4.2)</h3>
+          <h3 style={{ margin: "0 0 0.25rem 0" }}>{t("ops.exportTitle")}</h3>
           <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-muted)" }}>
-            Generates UTF-8 BOM CSV with anti-formula injection for approved submissions (Asia/Bangkok).
+            {t("ops.exportDesc")}
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem", alignItems: "center" }}>
@@ -493,36 +532,36 @@ function OpsScreen({
             onChange={(e) => setExportMonth(e.target.value)}
           />
           <button className="btn" onClick={handleExportCsv}>
-            Export Payout CSV
+            {t("ops.btnExport")}
           </button>
         </div>
       </div>
 
       <div className="card">
-        <h2>Ops Review Queue</h2>
+        <h2>{t("ops.queueTitle")}</h2>
         <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
           <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Filter Status</label>
+            <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>{t("ops.filterStatusLabel")}</label>
             <select
               className="select"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-              <option value="paid">Paid</option>
+              <option value="all">{t("ops.allStatuses")}</option>
+              <option value="pending">{t("status.pending")}</option>
+              <option value="approved">{t("status.approved")}</option>
+              <option value="rejected">{t("status.rejected")}</option>
+              <option value="paid">{t("status.paid")}</option>
             </select>
           </div>
           <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>Filter Campaign</label>
+            <label style={{ fontSize: "0.85rem", fontWeight: 600 }}>{t("ops.filterCampaignLabel")}</label>
             <select
               className="select"
               value={campaignFilter}
               onChange={(e) => setCampaignFilter(e.target.value)}
             >
-              <option value="all">All Campaigns</option>
+              <option value="all">{t("ops.allCampaigns")}</option>
               {campaigns.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.title}
@@ -533,19 +572,19 @@ function OpsScreen({
         </div>
 
         {loading ? (
-          <p>Loading queue...</p>
+          <p>{t("ops.loadingQueue")}</p>
         ) : filteredSubmissions.length === 0 ? (
-          <p style={{ color: "var(--text-muted)" }}>No submissions match the selected filters.</p>
+          <p style={{ color: "var(--text-muted)" }}>{t("ops.noQueueMatches")}</p>
         ) : (
           <table className="table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Campaign</th>
-                <th>Creator</th>
-                <th>TikTok URL</th>
-                <th>Status</th>
-                <th>Actions</th>
+                <th>{t("ops.colId")}</th>
+                <th>{t("ops.colCampaign")}</th>
+                <th>{t("ops.colCreator")}</th>
+                <th>{t("ops.colUrl")}</th>
+                <th>{t("ops.colStatus")}</th>
+                <th>{t("ops.colActions")}</th>
               </tr>
             </thead>
             <tbody>
@@ -562,7 +601,7 @@ function OpsScreen({
                       </a>
                     </td>
                     <td>
-                      <span className={`badge badge-${s.status}`}>{s.status}</span>
+                      <span className={`badge badge-${s.status}`}>{t(`status.${s.status}`)}</span>
                       {s.reason && (
                         <div style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginTop: "0.2rem" }}>
                           {s.reason}
@@ -578,7 +617,7 @@ function OpsScreen({
                             disabled={isItemLoading}
                             onClick={() => handleApprove(s)}
                           >
-                            Approve
+                            {t("ops.btnApprove")}
                           </button>
                           <button
                             className="btn btn-danger"
@@ -590,11 +629,11 @@ function OpsScreen({
                               setRejectReasonError(null);
                             }}
                           >
-                            Reject
+                            {t("ops.btnReject")}
                           </button>
                         </div>
                       ) : (
-                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>None</span>
+                        <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{t("ops.actionNone")}</span>
                       )}
                     </td>
                   </tr>
@@ -608,15 +647,15 @@ function OpsScreen({
       {rejectingSubId && (
         <div className="modal-backdrop">
           <div className="modal">
-            <h3>Reject Submission</h3>
+            <h3>{t("ops.rejectModalTitle")}</h3>
             <p style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}>
-              Please provide a clear reason for rejecting submission <strong>{rejectingSubId}</strong> (required):
+              {t("ops.rejectModalDesc", { id: rejectingSubId })}
             </p>
             <textarea
               rows={3}
               className="input"
               value={rejectReason}
-              placeholder="e.g. Video quality too low or missing campaign hashtag"
+              placeholder={t("ops.rejectReasonPlaceholder")}
               onChange={(e) => {
                 setRejectReason(e.target.value);
                 setRejectReasonError(null);
@@ -633,14 +672,14 @@ function OpsScreen({
                 onClick={() => setRejectingSubId(null)}
                 disabled={actionLoadingId !== null}
               >
-                Cancel
+                {t("ops.btnCancel")}
               </button>
               <button
                 className="btn btn-danger"
                 onClick={handleConfirmReject}
                 disabled={actionLoadingId !== null}
               >
-                Confirm Reject
+                {t("ops.btnConfirmReject")}
               </button>
             </div>
           </div>
